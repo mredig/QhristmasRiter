@@ -1,0 +1,24 @@
+{
+  "originHash" : "3aa37ad5a3b08759ad18de2d1dabb7903b29a5dfc81b0017cf8ae69c929ae775",
+  "pins" : [
+    {
+      "identity" : "swiftpizzasnips",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mredig/SwiftPizzaSnips",
+      "state" : {
+        "revision" : "cacae6d22770f9100b6e755467557e2f98814dff",
+        "version" : "0.4.28"
+      }
+    },
+    {
+      "identity" : "vectorextor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mredig/VectorExtor",
+      "state" : {
+        "revision" : "18406af1d8baea5ba5860c13dd70bc86489dbcc0",
+        "version" : "0.3.0"
+      }
+    }
+  ],
+  "version" : 3
+}

@@ -44,6 +44,35 @@ class RootViewController: NSViewController {
 		constraints += view.constrain(mainView)
 	}
 
+	@objc
+	func saveDocument(_ sender: NSMenuItem) {
+		guard let doc = mainView.document else { return }
+		let savePanel = NSSavePanel()
+		savePanel.nameFieldStringValue = "qrCodes"
+		savePanel.currentContentType = .pdf
+
+		let result = savePanel.runModal()
+		guard
+			result == .OK,
+			let url = savePanel.url
+		else { return }
+
+		guard
+			doc.write(to: url)
+		else {
+			return print("Error writing to file")
+		}
+	}
+
+	override func responds(to aSelector: Selector?) -> Bool {
+		guard
+			let aSelector,
+			aSelector == #selector(saveDocument(_:))
+		else { return super.responds(to: aSelector) }
+
+		return mainView.document != nil
+	}
+
 	func display(pdfData: Data) throws(Error) {
 		guard let pdfDoc = PDFDocument(data: pdfData) else {
 			throw .invalidPdfData

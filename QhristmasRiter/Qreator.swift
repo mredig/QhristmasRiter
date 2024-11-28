@@ -11,11 +11,12 @@ enum Qreator {
 		let data = Data(text.utf8)
 		guard let filter = CIFilter(name: "CIQRCodeGenerator") else { return nil }
 		filter.setValue(data, forKey: "inputMessage")
+		filter.setValue("Q", forKey: "inputCorrectionLevel")
 		guard let outputImage = filter.outputImage else { return nil }
 
 		let transform = CGAffineTransform(
-			scaleX: (size * 3) / outputImage.extent.size.width,
-			y: (size * 3) / outputImage.extent.size.height)
+			scaleX: (size * 5) / outputImage.extent.size.width,
+			y: (size * 5) / outputImage.extent.size.height)
 
 		let rep = NSCIImageRep(ciImage: outputImage.transformed(by: transform))
 		let nsImage = NSImage(size: rep.size)

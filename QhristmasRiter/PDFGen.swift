@@ -17,7 +17,8 @@ enum PDFGen {
 
 		for (image, placement) in zip(images, page.placementItems()) {
 
-			let imageSize = CGSize(scalar: placement.size.min) - CGSize(width: 2, height: 2)
+			let imageSize = image.size.scaledToFit(within: (placement.size - CGSize(scalar: 5)))
+
 			let imageBox = placement.absoluteCenterPlace(ofItemWithSize: imageSize)
 
 			var cgRect = NSRect(origin: .zero, size: imageSize)

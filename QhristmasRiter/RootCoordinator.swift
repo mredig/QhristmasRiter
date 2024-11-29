@@ -74,10 +74,12 @@ class RootCoordinator: Coordinator {
 extension RootCoordinator: RootWindowControllerCoordinator {
 	func rootWindowControllerDidPressProfileButton(_ rootWindowController: RootWindowController) {
 		let imageSize = 72.0
-		let qrImages = (0..<60)
-			.compactMap { _ in Qreator.generateQRCode(size: imageSize) }
+//		let qrImages = (0..<60)
+//			.compactMap { _ in Qreator.generateQRCode(size: imageSize) }
+		let images = (0..<60)
+			.compactMap { _ in Qreator.generate417Barcode(UUID().uuidString) }
 		guard
-			let pdfData = PDFGen.createUSLetterPDF(from: qrImages, imageSize: imageSize, spacing: 72/2, pageMargin: 72/2)
+			let pdfData = PDFGen.createUSLetterPDF(from: images, imageSize: imageSize, spacing: 72/2, pageMargin: 72/2)
 		else { return }
 		do {
 			try rootWindowController.vc?.display(pdfData: pdfData)

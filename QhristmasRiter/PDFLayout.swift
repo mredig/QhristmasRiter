@@ -71,6 +71,10 @@ enum PDFLayout {
 			items.filter { $0 is (any HPlaceable) }.count
 		}
 
+		func placementItems() -> [any HPlaceable] {
+			items.compactMap { $0 as? (any HPlaceable) }
+		}
+
 		func xOffset<I: RowItem>(of item: I) -> Double? {
 			guard let index = items.firstIndex(where: { ($0 as? I) == item }) else { return nil }
 
@@ -135,6 +139,25 @@ enum PDFLayout {
 			return nil
 		}
 
+		func placementItems() -> [PageItem] {
+			var currentHeight = margins.bottom
+			var items: [PageItem] = []
+			for row in rows {
+				defer { currentHeight += row.height }
+				for item in row.placementItems() {
+					guard let x = row.xOffset(of: item) else { continue }
+					let new = PageItem(
+						id: item.id,
+						x: x,
+						y: currentHeight,
+						width: item.width,
+						height: row.height)
+					items.append(new)
+				}
+			}
+			return items
+		}
+
 		func placement<I: RowItem>(of item: I) -> CGRect? {
 			var currentHeight = margins.bottom
 			for row in rows {
@@ -150,8 +173,70 @@ enum PDFLayout {
 		func placementCount() -> Int {
 			rows.map { $0.placementCount() }.reduce(0, +)
 		}
+
+		struct PageItem: Hashable {
+			let id: UUID
+			let x: Double
+			let y: Double
+			let width: Double
+			let height: Double
+
+			var origin: CGPoint {
+				CGPoint(x: x, y: y)
+			}
+
+			var size: CGSize {
+				CGSize(width: width, height: height)
+			}
+
+			func relativeCenterPlacement(ofItemWithSize size: CGSize) -> CGRect {
+				let wGap = width - size.width
+				let hGap = height - size.height
+
+				return CGRect(x: wGap / 2, y: hGap / 2, width: size.width, height: size.height)
+			}
+
+			func absoluteCenterPlace(ofItemWithSize size: CGSize) -> CGRect {
+				let relative = relativeCenterPlacement(ofItemWithSize: size)
+				return relative.offsetBy(dx: x, dy: y)
+			}
+		}
 	}
 
+	static func avery5195() -> PDFLayout.Page {
+		let row = Row(
+			items: [
+				Gap(measurement: .init(value: 7.62, unit: .millimeters)),
+				Sticker(measurement: .init(value: 1.75, unit: .inches)),
+				Gap(measurement: .init(value: 7.62, unit: .millimeters)),
+				Sticker(measurement: .init(value: 1.75, unit: .inches)),
+
+				Gap(measurement: .init(value: 7.62, unit: .millimeters)),
+
+				Sticker(measurement: .init(value: 1.75, unit: .inches)),
+				Gap(measurement: .init(value: 7.62, unit: .millimeters)),
+				Sticker(measurement: .init(value: 1.75, unit: .inches)),
+				Gap(measurement: .init(value: 7.62, unit: .millimeters)),
+			],
+			height: .init(value: 16.83855, unit: .millimeters))
+		let page = Page(
+			margins: NSEdgeInsets(
+				top: Measurement(value: 13.34, unit: UnitLength.millimeters).converted(to: .points).value,
+				left: 0,
+				bottom: Measurement(value: 14.08, unit: UnitLength.millimeters).converted(to: .points).value,
+				right: 0),
+			rows: (0..<15).map { _ in row })
+
+//		print(page)
+//		print(page.placementCount())
+//
+//		for item in page.rows.flatMap({ $0.items.filter { $0 is any HPlaceable} }) {
+//			let placement = page.placement(of: item)
+//			print(placement)
+//		}
+
+		return page
+	}
 }
 
 extension PDFLayout.ConstantWidth {

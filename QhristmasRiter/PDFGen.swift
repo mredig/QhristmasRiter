@@ -12,26 +12,20 @@ enum PDFGen {
 			let pdfContext = CGContext(consumer: consumer, mediaBox: &pageBox, nil)
 		else { return nil }
 		pdfContext.beginPDFPage(nil)
-//		pdfContext.interpolationQuality = .none
 
-		let mediaBox = pageBox.insetBy(dx: pageMargin, dy: pageMargin)
+		let page = PDFLayout.avery5195()
 
-		let period = imageSize + spacing
+		for (image, placement) in zip(images, page.placementItems()) {
 
-		for (index, image) in images.enumerated() {
-			let offset = Double(index) * period
-			let xOffset = offset.truncatingRemainder(dividingBy: mediaBox.width)
-			let yOffset = Double(Int(offset) / Int(mediaBox.width)) * period
-			let imageBox = CGRect(
-				origin: CGPoint(x: pageMargin + xOffset, y: pageMargin + yOffset),
-				size: CGSize(scalar: imageSize))
+			let imageSize = CGSize(scalar: placement.size.min) - CGSize(width: 2, height: 2)
+			let imageBox = placement.absoluteCenterPlace(ofItemWithSize: imageSize)
 
-			var cgRect = NSRect(origin: .zero, size: image.size)
+			var cgRect = NSRect(origin: .zero, size: imageSize)
 			guard
 				let cgImage = image.cgImage(forProposedRect: &cgRect, context: nil, hints: nil),
 				pdfContext.draw(cgImage, in: imageBox, options: nil)
 			else { continue }
-			print("\(index): \(imageBox)")
+//			print("\(imageBox)")
 		}
 
 		pdfContext.endPDFPage()
